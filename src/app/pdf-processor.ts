@@ -215,31 +215,40 @@ export class PdfProcessor {
       }
     }
 
+    // Adaptive chunk splitting based on BOTH file size and page count:
+    // A heavy scanned file (e.g. 103MB for 10-20 pages) has 5MB-10MB/page.
+    // Putting 12 pages in a chunk would create a 60MB-100MB chunk, causing browser Out of Memory.
+    // We aim for each chunk to be <= 12MB and at most 10 pages.
+    const MAX_CHUNK_PAGES = 10;
+    const TARGET_MAX_CHUNK_MB = 12;
+    const fileSizeMb = file.size / (1024 * 1024);
+    const avgMbPerPage = fileSizeMb / Math.max(1, numPages);
+
+    let targetPagesPerChunk = MAX_CHUNK_PAGES;
+    if (avgMbPerPage > 0) {
+      const sizeBasedLimit = Math.max(1, Math.floor(TARGET_MAX_CHUNK_MB / avgMbPerPage));
+      targetPagesPerChunk = Math.min(MAX_CHUNK_PAGES, sizeBasedLimit);
+    }
+
     const createChunks = (pages: PdfPageData[]): any[] => {
       const chunks: any[] = [];
-      const divide = (p: PdfPageData[]) => {
-        if (p.length <= 12) {
-          if (p.length > 0) {
-            chunks.push({
-              id: '',
-              originalFileName: '',
-              index: chunks.length,
-              startPageNum: p[0].pageNum,
-              endPageNum: p[p.length - 1].pageNum,
-              pages: p,
-              status: 'pending',
-              errorMessage: '',
-              markdownContent: '',
-              reflowHtml: ''
-            });
-          }
-          return;
+      for (let i = 0; i < pages.length; i += targetPagesPerChunk) {
+        const slice = pages.slice(i, i + targetPagesPerChunk);
+        if (slice.length > 0) {
+          chunks.push({
+            id: '',
+            originalFileName: '',
+            index: chunks.length,
+            startPageNum: slice[0].pageNum,
+            endPageNum: slice[slice.length - 1].pageNum,
+            pages: slice,
+            status: 'pending',
+            errorMessage: '',
+            markdownContent: '',
+            reflowHtml: ''
+          });
         }
-        const mid = Math.floor(p.length / 2);
-        divide(p.slice(0, mid));
-        divide(p.slice(mid));
-      };
-      divide(pages);
+      }
       return chunks;
     };
 
@@ -251,11 +260,12 @@ export class PdfProcessor {
       chunkCounter++;
     }
 
-    // On-demand rendering: Render immediately ONLY for chunk 1 (pages in chunk 1)
+    // On-demand rendering: Render immediately only the first 1-2 pages of chunk 1
     if (generatedChunks.length > 0) {
-      onProgress('Đang render trước ảnh Bản gốc Phần 1...');
+      onProgress('Đang chuẩn bị Bản gốc...');
       const firstChunk = generatedChunks[0];
-      for (const page of firstChunk.pages) {
+      const initialPages = firstChunk.pages.slice(0, 2);
+      for (const page of initialPages) {
         if (!page.pageImageUrl) {
           page.pageImageUrl = await this.renderPageToPng(page.pageNum);
         }

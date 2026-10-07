@@ -85,12 +85,30 @@ export class AiPromptOptimizer {
     });
   }
 
+  private cachedPdfDocs = new Map<string, PDFDocument>();
+
+  /**
+   * Helper to retrieve or lazily parse a PDFDocument, avoiding repeated large heap allocations
+   */
+  private async getOrLoadPdfDoc(file: File): Promise<PDFDocument> {
+    const key = `${file.name}_${file.size}_${file.lastModified}`;
+    if (this.cachedPdfDocs.has(key)) {
+      return this.cachedPdfDocs.get(key)!;
+    }
+    const arrayBuffer = await file.arrayBuffer();
+    const doc = await PDFDocument.load(arrayBuffer, { ignoreEncryption: true });
+    if (this.cachedPdfDocs.size >= 2) {
+      this.cachedPdfDocs.clear();
+    }
+    this.cachedPdfDocs.set(key, doc);
+    return doc;
+  }
+
   /**
    * Slices a range of pages from the master PDF using pdf-lib and returns as a Base64-encoded PDF
    */
   async splitPdf(file: File, startPageNum: number, endPageNum: number): Promise<string> {
-    const arrayBuffer = await file.arrayBuffer();
-    const srcDoc = await PDFDocument.load(arrayBuffer);
+    const srcDoc = await this.getOrLoadPdfDoc(file);
     const subDoc = await PDFDocument.create();
 
     const pageCount = srcDoc.getPageCount();
@@ -110,7 +128,7 @@ export class AiPromptOptimizer {
     const copiedPages = await subDoc.copyPages(srcDoc, pageIndicesToCopy);
     copiedPages.forEach((page) => subDoc.addPage(page));
 
-    const subPdfBytes = await subDoc.save();
+    const subPdfBytes = await subDoc.save({ useObjectStreams: false });
     return await this.uint8ArrayToBase64(subPdfBytes);
   }
 
