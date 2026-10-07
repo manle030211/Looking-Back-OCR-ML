@@ -689,33 +689,34 @@ export class DocumentProcessingService {
         await this.ensureDocumentStyleProfile();
       }
 
-      for (let i = 0; i < pendingIndices.length; i += 1) {
-  if (this.shouldStopBatch()) {
-    this.showSuccess('Đã nhận lệnh dừng. Các khối còn lại tạm dừng.');
-    break;
-  }
+      const CONCURRENT_CHUNKS = 2;
+      for (let i = 0; i < pendingIndices.length; i += CONCURRENT_CHUNKS) {
+        if (this.shouldStopBatch()) {
+          this.showSuccess('Đã nhận lệnh dừng. Các khối còn lại tạm dừng.');
+          break;
+        }
 
-  const batch = pendingIndices.slice(i, i + 1);
+        const batch = pendingIndices.slice(i, i + CONCURRENT_CHUNKS);
 
-  const results = await Promise.all(
-    batch.map(idx => this.processSingleChunkForBatch(idx))
-  );
+        const results = await Promise.all(
+          batch.map(idx => this.processSingleChunkForBatch(idx))
+        );
 
-  // If any chunk encountered an unrecoverable/fatal error, halt queue immediately
-  if (results.includes(false)) {
-    this.shouldStopBatch.set(true);
-    const currentErr = this.apiError();
-    this.apiError.set(
-      `${currentErr} (Tiến trình xử lý hàng loạt đã tự động dừng lại để tránh gửi tiếp các yêu cầu bị lỗi tương tự).`
-    );
-    break;
-  }
+        // If any chunk encountered an unrecoverable/fatal error, halt queue immediately
+        if (results.includes(false)) {
+          this.shouldStopBatch.set(true);
+          const currentErr = this.apiError();
+          this.apiError.set(
+            `${currentErr} (Tiến trình xử lý hàng loạt đã tự động dừng lại để tránh gửi tiếp các yêu cầu bị lỗi tương tự).`
+          );
+          break;
+        }
 
-  // Chờ 10 giây trước khi gửi chunk tiếp theo
-  if (i + 1 < pendingIndices.length) {
-    await new Promise(resolve => setTimeout(resolve, 10000));
-  }
-}
+        // Chờ 10 giây trước khi gửi lượt khối tiếp theo
+        if (i + CONCURRENT_CHUNKS < pendingIndices.length) {
+          await new Promise(resolve => setTimeout(resolve, 10000));
+        }
+      }
       
       const updatedChunks = this.pdfChunks();
       const allDoneNow = updatedChunks.every(c => c.status === 'completed');
