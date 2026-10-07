@@ -6,7 +6,6 @@ import { generateHtmlDocument } from '../utils/html-template-builder';
 import { DocumentStyleProfile, DEFAULT_STYLE_PROFILE } from '../header';
 import { PdfChunk } from './document-processing.service';
 import { generateHistoryId } from './history.service';
-import { ExcelExporter } from '../excel/excel-exporter';
 
 @Injectable({
   providedIn: 'root'
@@ -221,34 +220,5 @@ export class ExportService {
 
     const blob = new Blob([fullHtmlSource], { type: 'text/html;charset=utf-8' });
     this.triggerBrowserDownload(blob, `${title}.html`);
-  }
-
-  exportFullExcel(fileName: string, chunks: PdfChunk[]): void {
-    const title = this.getCleanFileName(fileName);
-    const blob = ExcelExporter.generateExcelBlob(title, chunks);
-    this.triggerBrowserDownload(blob, `${title}.xlsx`);
-  }
-
-  async exportMultiFileExcelZip(
-    fileName: string,
-    chunks: PdfChunk[]
-  ): Promise<void> {
-    const zip = new JSZip();
-
-    for (const chunk of chunks) {
-      const chunkTitle = this.getChunkFileName(fileName, chunk);
-      const excelBlob = ExcelExporter.generateChunkExcelBlob(chunkTitle, chunk);
-      zip.file(`${chunkTitle}.xlsx`, excelBlob);
-    }
-
-    const zipBlob = await zip.generateAsync({ type: 'blob' });
-    const bundleName = this.getCleanFileName(chunks[0]?.originalFileName || fileName);
-    this.triggerBrowserDownload(zipBlob, `${bundleName}_Excel_Bundle.zip`);
-  }
-
-  exportChunkExcel(fileName: string, chunk: PdfChunk): void {
-    const title = this.getChunkFileName(fileName, chunk);
-    const blob = ExcelExporter.generateChunkExcelBlob(title, chunk);
-    this.triggerBrowserDownload(blob, `${title}.xlsx`);
   }
 }

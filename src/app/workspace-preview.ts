@@ -126,23 +126,6 @@ import { SafeHtml, DomSanitizer, SafeResourceUrl } from '@angular/platform-brows
               </div>
 
             }
-
-            <!-- Excel Export Button for Full Document -->
-            <div class="relative group">
-              <button 
-                (click)="downloadExcel.emit()"
-                [disabled]="isParsing() || isOptimizing()"
-                class="py-2.5 px-3 bg-teal-700 hover:bg-teal-600 active:bg-teal-800 disabled:bg-slate-800 disabled:text-slate-500 text-white text-xs font-bold rounded-lg flex items-center justify-center gap-1.5 transition shadow shadow-teal-700/10 cursor-pointer focus:outline-none disabled:cursor-not-allowed shrink-0">
-                <mat-icon class="text-[18px] w-[18px] h-[18px] leading-[18px] flex items-center justify-center">table_chart</mat-icon>
-                <span>{{ isMultiFileMode() ? 'Tải ZIP Excel (trọn bộ)' : 'Tải Excel (trọn bộ)' }}</span>
-              </button>
-              <!-- Tailwind Tooltip Downwards (Right-aligned to avoid overflow) -->
-              <div class="absolute top-full mt-2.5 right-0 pointer-events-none z-50 bg-slate-900 border border-white/10 text-slate-200 text-[11px] font-sans py-2 px-3 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 scale-95 group-hover:scale-100 w-56 text-left leading-relaxed">
-                {{ isMultiFileMode() ? 'Đóng gói các tệp Microsoft Excel (.xlsx) riêng biệt vào một file .zip tải về.' : 'Xuất toàn bộ bảng biểu và nội dung tài liệu sang bảng tính Microsoft Excel (.xlsx).' }}
-                <!-- Tooltip Arrow Pointing Up -->
-                <div class="absolute bottom-full right-6 border-[5px] border-transparent border-b-slate-900"></div>
-              </div>
-            </div>
           }
         </div>
       </div>
@@ -182,14 +165,6 @@ import { SafeHtml, DomSanitizer, SafeResourceUrl } from '@angular/platform-brows
                     <span class="max-w-[200px] truncate">Tải Docx ({{ activeChunk()?.originalFileName || (activeChunk()?.id | lowercase) }})</span>
                   </button>
                 }
-
-                <button 
-                  (click)="downloadExcelForChunk.emit()"
-                  [disabled]="isParsing() || isOptimizing()"
-                  class="py-1.5 px-2.5 bg-teal-50 text-teal-700 hover:bg-teal-100 active:bg-teal-200 disabled:opacity-50 text-[11px] font-bold rounded-md flex items-center justify-center gap-1 transition cursor-pointer disabled:cursor-not-allowed">
-                  <mat-icon class="text-[14px] w-[14px] h-[14px] leading-[14px] flex items-center justify-center">table_chart</mat-icon>
-                  <span class="max-w-[200px] truncate">Tải Excel ({{ activeChunk()?.originalFileName || (activeChunk()?.id | lowercase) }})</span>
-                </button>
               </div>
             }
 
@@ -386,8 +361,6 @@ export class WorkspacePreview {
   downloadDocxForChunk = output<void>();
   downloadMarkdownForChunk = output<void>();
   downloadHtmlForChunk = output<void>();
-  downloadExcel = output<void>();
-  downloadExcelForChunk = output<void>();
   downloadMarkdown = output<void>();
   downloadHtml = output<void>();
   zoomImage = output<string>();

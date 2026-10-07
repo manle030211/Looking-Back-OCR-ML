@@ -513,48 +513,4 @@ export class App {
     this.exportService.exportChunkHtml(this.fileName(), chunk, this.documentStyleProfile());
     this.showSuccess(`Đã tải tệp HTML (.html) cho ${chunk.originalFileName || chunk.id} thành công.`);
   }
-
-  async downloadExcelFile() {
-    if (!this.isAllCompleted()) {
-      this.apiError.set('Vui lòng hoàn thành xử lý AI trên tất cả các khối trước khi tải file Excel.');
-      return;
-    }
-    this.isParsing.set(true);
-    const isMulti = this.docService.isMultiFileMode();
-    this.parsingStatus.set(isMulti ? 'Đang đóng gói các tệp Excel (.xlsx) vào tệp ZIP...' : 'Đang tạo bảng tính Excel (.xlsx)...');
-    try {
-      if (isMulti) {
-        await this.exportService.exportMultiFileExcelZip(
-          this.fileName(),
-          this.pdfChunks()
-        );
-        this.showSuccess('Đóng gói và tải tệp ZIP Excel (.xlsx) thành công!');
-      } else {
-        this.exportService.exportFullExcel(
-          this.fileName(),
-          this.pdfChunks()
-        );
-        this.showSuccess('Tải tệp bảng tính Excel (.xlsx) thành công!');
-      }
-    } catch (err: any) {
-      this.apiError.set(`Lỗi tạo tệp Excel: ${err.message || err}.`);
-    } finally {
-      this.isParsing.set(false);
-      this.parsingStatus.set('');
-    }
-  }
-
-  downloadChunkExcelFile() {
-    const chunk = this.activeChunk();
-    if (!chunk || chunk.status !== 'completed' || (!chunk.markdownContent && !chunk.reflowHtml)) {
-      this.apiError.set('Phần này chưa được xử lý xong để tải xuống.');
-      return;
-    }
-    try {
-      this.exportService.exportChunkExcel(this.fileName(), chunk);
-      this.showSuccess(`Tải tệp Excel (.xlsx) cho ${chunk.originalFileName || chunk.id} thành công!`);
-    } catch (err: any) {
-      this.apiError.set(`Lỗi tạo tệp Excel: ${err.message || err}.`);
-    }
-  }
 }

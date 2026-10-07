@@ -13,7 +13,6 @@ Trang bạn đang thấy đây là nơi lưu trữ toàn bộ mã nguồn & lị
 - Bản PDF scan tải lên: [Nam_Phong_Tap_Chi_Q04_QN_019-024_T020.pdf](https://github.com/manle030211/Looking-Back-OCR-ML/blob/main/demo/Nam_Phong_Tap_Chi_Q04_QN_019-024_T020.pdf) (Kho sách xưa - Huỳnh Chiếu Đẳng) 
 - Bản Web `.html` được OCR bởi `Looking-Back-OCR`: [Nam_Phong_Tap_Chi_Q04_QN_019-024_T020.html](https://github.com/manle030211/Looking-Back-OCR-ML/blob/main/demo/Nam_Phong_Tap_Chi_Q04_QN_019-024_T020.html) (Tải về và mở bằng trình duyệt để xem).
 - Bản `.docx`: [Nam_Phong_Tap_Chi_Q04_QN_019-024_T020.docx](https://github.com/manle030211/Looking-Back-OCR-ML/blob/main/demo/Nam_Phong_Tap_Chi_Q04_QN_019-024_T020.docx) (Để có phiên bản `.docx`, trước khi chuyển, bạn chọn kiểu chuyển "DOCX" là được, còn mặc định khi không chọn sẽ là kiểu "Bảo toàn" của định dạng Web `.html`).
-- Bản Excel `.xlsx`: Hỗ trợ trích xuất toàn bộ bảng biểu số liệu, cấu trúc dòng và nội dung sang định dạng bảng tính Microsoft Excel (`.xlsx`).
 
 ## Cách sử dụng
 - **Mọi người có thể dùng phiên bản trên AI Studio thông qua link này**: https://aistudio.google.com/apps/513da822-939a-4929-ac44-2e0e86309b06?showPreview=true&showAssistant=true&fullscreenApplet=true (để tận dụng **ngưỡng miễn phí hàng ngày** tương đổi rộng rãi của Gemini, sử dụng API Key miễn phí).
