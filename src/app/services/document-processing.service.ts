@@ -263,8 +263,8 @@ export class DocumentProcessingService {
   }
 
   async processPdfFile(file: File): Promise<boolean> {
-    if (file.size > 100 * 1024 * 1024) {
-      this.apiError.set(`Tài liệu vượt quá giới hạn 100MB (${this.pdfProcessor.formatBytes(file.size)}). Vui lòng chọn tệp nhỏ hơn.`);
+    if (file.size > 200 * 1024 * 1024) {
+      this.apiError.set(`Tài liệu vượt quá giới hạn 200MB (${this.pdfProcessor.formatBytes(file.size)}). Vui lòng chọn tệp nhỏ hơn.`);
       return false;
     }
 
