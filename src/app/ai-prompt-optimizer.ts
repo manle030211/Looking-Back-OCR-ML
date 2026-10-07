@@ -69,15 +69,20 @@ export class AiPromptOptimizer {
   }
 
   /**
-   * Helper to convert Uint8Array into clean base64 string
+   * Helper to convert Uint8Array into clean base64 string without blocking the UI thread
    */
-  private uint8ArrayToBase64(bytes: Uint8Array): string {
-    let binary = '';
-    const len = bytes.byteLength;
-    for (let i = 0; i < len; i++) {
-      binary += String.fromCharCode(bytes[i]);
-    }
-    return window.btoa(binary);
+  private async uint8ArrayToBase64(bytes: Uint8Array): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+      const blob = new Blob([bytes as unknown as BlobPart], { type: 'application/pdf' });
+      const reader = new FileReader();
+      reader.onload = () => {
+        const dataUrl = reader.result as string;
+        const commaIndex = dataUrl.indexOf(',');
+        resolve(commaIndex >= 0 ? dataUrl.slice(commaIndex + 1) : dataUrl);
+      };
+      reader.onerror = () => reject(reader.error || new Error('Lỗi chuyển đổi Base64'));
+      reader.readAsDataURL(blob);
+    });
   }
 
   /**
@@ -106,7 +111,7 @@ export class AiPromptOptimizer {
     copiedPages.forEach((page) => subDoc.addPage(page));
 
     const subPdfBytes = await subDoc.save();
-    return this.uint8ArrayToBase64(subPdfBytes);
+    return await this.uint8ArrayToBase64(subPdfBytes);
   }
 
   /**

@@ -148,21 +148,23 @@ export class PdfProcessor {
   private async renderPageFromDoc(doc: any, localPageNum: number): Promise<string> {
     try {
       const page = await doc.getPage(localPageNum);
-      const viewport = page.getViewport({ scale: 1.4 * (window.devicePixelRatio || 1) }); // Scale for high DPI screens
+      const dpr = typeof window !== 'undefined' ? Math.min(window.devicePixelRatio || 1, 1.5) : 1;
+      const scale = Math.min(1.3 * dpr, 2.0); // Optimized scale to prevent huge canvas memory spikes
+      const viewport = page.getViewport({ scale });
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
       if (!ctx) return '';
-      canvas.width = viewport.width;
-      canvas.height = viewport.height;
+      canvas.width = Math.floor(viewport.width);
+      canvas.height = Math.floor(viewport.height);
 
       const renderContext = {
         canvasContext: ctx,
         viewport: viewport
       };
       await page.render(renderContext).promise;
-      return canvas.toDataURL('image/png'); // Standard PNG format
+      return canvas.toDataURL('image/jpeg', 0.85); // JPEG is 10x smaller than PNG in RAM and renders faster
     } catch (err) {
-      console.error(`Error rendering local page ${localPageNum} to PNG:`, err);
+      console.error(`Error rendering local page ${localPageNum} to image:`, err);
       return '';
     }
   }
@@ -182,23 +184,22 @@ export class PdfProcessor {
     this.pageToDocMap.clear();
     this.loadedPdfDocs.clear();
 
-    const arrayBuffer = await file.arrayBuffer();
     onProgress('Đọc tài liệu PDF...');
-    const srcDoc = await PDFDocument.load(arrayBuffer);
-    const numPages = srcDoc.getPageCount();
-
-    if (numPages > 500) {
-      throw new Error(`Tài liệu có ${numPages} trang, vượt quá giới hạn cho phép (tối đa 500 trang). Vui lòng chia nhỏ tài liệu trước khi xử lý.`);
-    }
-
-    // Initialize pdfjs document for on-demand PNG rendering
+    let numPages = 0;
     try {
-      await this.loadPdfDocument(file);
+      const doc = await this.loadPdfDocument(file);
+      numPages = doc.numPages;
       if (this.currentPdfDoc) {
         this.loadedPdfDocs.set(file.name, this.currentPdfDoc);
       }
-    } catch (e) {
-      console.warn('Could not load pdfjsDoc for on-demand rendering:', e);
+    } catch {
+      const arrayBuffer = await file.arrayBuffer();
+      const srcDoc = await PDFDocument.load(arrayBuffer);
+      numPages = srcDoc.getPageCount();
+    }
+
+    if (numPages > 500) {
+      throw new Error(`Tài liệu có ${numPages} trang, vượt quá giới hạn cho phép (tối đa 500 trang). Vui lòng chia nhỏ tài liệu trước khi xử lý.`);
     }
 
     const itemsExtracted: PdfPageData[] = [];

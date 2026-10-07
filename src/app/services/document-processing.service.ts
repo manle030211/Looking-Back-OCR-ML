@@ -263,8 +263,8 @@ export class DocumentProcessingService {
   }
 
   async processPdfFile(file: File): Promise<boolean> {
-    if (file.size > 200 * 1024 * 1024) {
-      this.apiError.set(`Tài liệu vượt quá giới hạn 200MB (${this.pdfProcessor.formatBytes(file.size)}). Vui lòng chọn tệp nhỏ hơn.`);
+    if (file.size > 110 * 1024 * 1024) {
+      this.apiError.set(`Tài liệu vượt quá giới hạn 110MB (${this.pdfProcessor.formatBytes(file.size)}). Vui lòng chọn tệp nhỏ hơn.`);
       return false;
     }
 
@@ -406,7 +406,7 @@ export class DocumentProcessingService {
     const chunk = chunks[chunkIndex];
     if (!chunk || !chunk.pages) return;
 
-    // Check if any page in this chunk needs PNG rendering
+    // Check if any page in this chunk needs image rendering
     const unrenderedPages = chunk.pages.filter(p => !p.pageImageUrl);
     if (unrenderedPages.length === 0) return;
 
@@ -415,6 +415,8 @@ export class DocumentProcessingService {
       if (dataUrl) {
         page.pageImageUrl = dataUrl;
       }
+      // Yield main thread after each page to keep browser responsive
+      await new Promise(resolve => setTimeout(resolve, 16));
     }
     // Trigger signal update so subscribers react
     this.pdfChunks.set([...chunks]);
@@ -428,18 +430,24 @@ export class DocumentProcessingService {
 
     try {
       // Delay slightly to give UI breathing room after upload finishes
-      await new Promise(resolve => setTimeout(resolve, 300));
+      await new Promise(resolve => setTimeout(resolve, 500));
 
       const totalChunks = this.pdfChunks().length;
       for (let i = 0; i < totalChunks; i++) {
         // If file was changed or cleared during background rendering, stop
         if (!this.pdfFile()) break;
 
+        // If batch processing or optimization is running, pause background rendering
+        while (this.isBatchProcessing() || this.isOptimizing()) {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          if (!this.pdfFile()) break;
+        }
+
         const chunk = this.pdfChunks()[i];
         if (chunk && chunk.pages && chunk.pages.some(p => !p.pageImageUrl)) {
           await this.ensureChunkPagesRendered(i);
           // Yield main thread between chunks so UI remains 100% responsive
-          await new Promise(resolve => setTimeout(resolve, 100));
+          await new Promise(resolve => setTimeout(resolve, 120));
         }
       }
     } catch (e) {

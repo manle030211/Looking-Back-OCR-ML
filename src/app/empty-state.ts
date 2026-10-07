@@ -67,7 +67,7 @@ import { MatIconModule } from '@angular/material/icon';
               @if (isParsing()) {
                 <span class="text-indigo-300 font-medium">{{ parsingStatus() || 'Hệ thống đang cấu trúc thông tin' }}</span>
               } @else {
-                <p>[Tối đa: 1 file PDF ≤ 500 trang và không quá 200MB] hoặc</p>
+                <p>[Tối đa: 1 file PDF ≤ 500 trang và không quá 110MB] hoặc</p>
                 <p>[20 file PDF, mỗi file ≤ 12 trang, và không quá 10MB] hoặc</p>
                 <p>[100 file ảnh (JPG, PNG), mỗi file ≤ 5MB]</p>
                 <p class="mt-1.5 text-indigo-300/80">Vui lòng không tải lên lẫn lộn 2 định dạng cùng lúc.</p>

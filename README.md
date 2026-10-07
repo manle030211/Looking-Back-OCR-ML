@@ -23,7 +23,7 @@ Trang bạn đang thấy đây là nơi lưu trữ toàn bộ mã nguồn & lị
 **Lưu ý**: Với trường hợp [sử dụng KEY miễn phí trên AI Studio](https://github.com/manle030211/Looking-Back-OCR-ML/blob/main/create-api-key.md) (Gemini) hoặc sử dụng model trợ giá của Meta AI (`muse-spark-1.2-contributor`), người dùng chỉ nên up lên tài liệu đã hết hạn bản quyền, vì các model trên có thể sẽ sử dụng dữ liệu người dùng up lên để đào tạo AI của họ.
 
 ### Một số giới hạn tải lên
-- Nếu bạn tải lên một file PDF, giới hạn là từ 200MB đổ xuống & không quá 500 trang. Nếu file lớn quá ngưỡng trên, nên dùng công cụ cắt file PDF cho nó nhỏ bớt đi trước khi tải lên, ví dụ công cụ này: https://smallpdf.com/vi/split-pdf;
+- Nếu bạn tải lên một file PDF, giới hạn là từ 110MB đổ xuống & không quá 500 trang. Nếu file lớn quá ngưỡng trên, nên dùng công cụ cắt file PDF cho nó nhỏ bớt đi trước khi tải lên, ví dụ công cụ này: https://smallpdf.com/vi/split-pdf;
 - Nếu bạn tải lên nhiều file PDF cùng lúc, số lượng tối đa không quá 20 file, mỗi file không quá 12 trang & không lớn hơn 10MB mỗi file;
 - Nếu bạn tải lên nhiều ảnh, số lượng không quá 100 ảnh, mỗi ảnh không quá 5MB;
 - Lưu ý, công cụ sẽ không nhận file tải lên lẫn lộn định dạng, tức là tải lên vừa PDF vừa ảnh công cụ sẽ từ chối.
