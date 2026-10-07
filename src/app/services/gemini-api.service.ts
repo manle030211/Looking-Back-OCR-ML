@@ -112,7 +112,9 @@ console.log('GEMINI REQUEST END:', new Date().toISOString(), 'STATUS:', apiRespo
   let errorData: any = {};
   try {
     errorData = JSON.parse(errorText);
-  } catch {}
+  } catch {
+    /* ignore JSON parse failure */
+  }
 
   const originalError =
     errorData?.error?.message ||

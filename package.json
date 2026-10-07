@@ -3,9 +3,9 @@
   "version": "1.0.73",
   "main": "electron/main.cjs",
   "scripts": {
-  "ng": "ng",
-  "dev": "ng serve",
-  "build": "ng build --base-href ./",
+    "ng": "ng",
+    "dev": "ng serve --host 0.0.0.0 --port 3000",
+    "build": "ng build --base-href ./",
   "watch": "ng build --watch --configuration development",
   "test": "ng test",
   "lint": "ng lint",
