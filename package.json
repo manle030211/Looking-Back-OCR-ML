@@ -1,14 +1,17 @@
 {
   "name": "ai-studio-angular-app",
   "version": "1.0.73",
+  "main": "electron/main.cjs",
   "scripts": {
-    "ng": "ng",
-    "dev": "cross-env ng serve --port=3000 --host=0.0.0.0 --allowed-hosts=true ${DISABLE_HMR:+--live-reload=false}",
-    "build": "ng build",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test",
-    "lint": "ng lint"
-  },
+  "ng": "ng",
+  "dev": "ng serve",
+  "build": "ng build --base-href ./",
+  "watch": "ng build --watch --configuration development",
+  "test": "ng test",
+  "lint": "ng lint",
+  "electron": "electron .",
+  "electron:build": "npm run build && electron-builder"
+},
   "private": true,
   "dependencies": {
     "@angular/cdk": "^21.0.0",
@@ -24,7 +27,7 @@
     "docx": "^9.7.1",
     "file-saver": "^2.0.5",
     "jszip": "^3.10.1",
-    "katex": "^0.17.0",
+    "katex": "^0.19.0",
     "marked": "^18.0.4",
     "mathml2omml": "^0.5.0",
     "motion": "^12.23.24",
@@ -35,21 +38,39 @@
   },
   "devDependencies": {
     "@angular/build": "^21.0.0",
-    "@angular/cli": "^21.0.0",
+    "@angular/cli": "^22.2.1",
     "@angular/compiler-cli": "^21.0.0",
     "@tailwindcss/postcss": "^4.1.12",
     "@types/file-saver": "^2.0.7",
     "@types/katex": "^0.16.8",
     "@types/marked": "^5.0.2",
     "@types/node": "^20.17.19",
-    "angular-eslint": "21.1.0",
+    "angular-eslint": "^22.5.0",
     "cross-env": "^10.1.0",
+    "electron": "^44.6.0",
+    "electron-builder": "^26.15.3",
     "eslint": "^9.39.1",
     "jsdom": "^27.0.0",
     "postcss": "^8.5.3",
     "tailwindcss": "^4.1.12",
     "typescript": "~5.9.2",
-    "typescript-eslint": "8.47.0",
+    "typescript-eslint": "^8.71.1",
     "vitest": "^4.0.0"
+  },
+
+  "build": {
+    "appId": "com.aistudio.angularapp",
+    "productName": "AI Studio Angular App",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis"
+    }
   }
 }

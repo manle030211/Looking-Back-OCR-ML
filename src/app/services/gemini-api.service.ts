@@ -64,6 +64,7 @@ export class GeminiApiService {
     parts: any[],
     systemInstructionText?: string
   ): Promise<{ rawMarkdown: string; inputTokens: number; outputTokens: number }> {
+    console.log('=== NEW GEMINI SERVICE CODE ===');
     const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(apiKey)}`;
 
     const requestBody: any = {
@@ -89,7 +90,10 @@ export class GeminiApiService {
         parts: [{ text: systemInstructionText }]
       };
     }
-
+console.log('GEMINI REQUEST MODEL:', modelName);
+console.log('GEMINI REQUEST PARTS:', parts.length);
+console.log('GEMINI REQUEST BODY SIZE:', JSON.stringify(requestBody).length);
+console.log('GEMINI REQUEST START:', new Date().toISOString(), 'MODEL:', modelName);
     const apiResponse = await fetch(endpoint, {
       method: 'POST',
       headers: {
@@ -97,13 +101,29 @@ export class GeminiApiService {
       },
       body: JSON.stringify(requestBody)
     });
-
+console.log('GEMINI REQUEST END:', new Date().toISOString(), 'STATUS:', apiResponse.status);
     if (!apiResponse.ok) {
-      const errorData = await apiResponse.json().catch(() => ({}));
-      const originalError = errorData?.error?.message || `HTTP ${apiResponse.status} ${apiResponse.statusText}`;
-      const statusDetails = errorData?.error?.status || '';
-      throw new Error(`Google API (HTTP ${apiResponse.status}${statusDetails ? ' - ' + statusDetails : ''}): ${originalError}`);
-    }
+  const errorText = await apiResponse.text();
+
+  console.log('GEMINI MODEL:', modelName);
+  console.log('GEMINI RESPONSE STATUS:', apiResponse.status, apiResponse.statusText);
+  console.log('GEMINI ERROR BODY:', errorText);
+
+  let errorData: any = {};
+  try {
+    errorData = JSON.parse(errorText);
+  } catch {}
+
+  const originalError =
+    errorData?.error?.message ||
+    `HTTP ${apiResponse.status} ${apiResponse.statusText}`;
+
+  const statusDetails = errorData?.error?.status || '';
+
+  throw new Error(
+    `Google API (HTTP ${apiResponse.status}${statusDetails ? ' - ' + statusDetails : ''}): ${originalError}`
+  );
+}
 
     const resData = await apiResponse.json();
     let rawOutput = resData?.candidates?.[0]?.content?.parts?.[0]?.text || '';

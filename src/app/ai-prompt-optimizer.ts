@@ -21,7 +21,7 @@ export class AiPromptOptimizer {
    */
   private async fetchFreshPrompt(fileName: string): Promise<string> {
     const cacheBuster = `cb=${Date.now()}_${Math.floor(Math.random() * 1000000)}`;
-    const url = `/prompts/${fileName}?${cacheBuster}`;
+    const url = `./prompts/${fileName}?${cacheBuster}`;
 
     const response = await fetch(url, {
       cache: 'no-store',

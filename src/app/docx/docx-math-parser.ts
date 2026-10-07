@@ -22,7 +22,7 @@ import * as mathml2ommlPkg from 'mathml2omml';
 
 const mml2ommlFn: (mml: string) => string =
   (mathml2ommlPkg as any).mml2omml ||
-  (mathml2ommlPkg as any).default?.mml2omml ||
+  (mathml2ommlPkg as any).mml2omml ||
   (mathml2ommlPkg as any).default ||
   mathml2ommlPkg;
 
