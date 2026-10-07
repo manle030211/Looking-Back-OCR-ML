@@ -697,10 +697,8 @@ export class DocumentProcessingService {
         await this.ensureDocumentStyleProfile();
       }
 
-      // Với các tệp dung lượng đặc biệt lớn (> 70MB), chạy 1 khối mỗi lượt để bảo toàn bộ nhớ RAM trình duyệt, tránh Out of Memory.
-      // Với các tệp thông thường, chạy 2 khối song song để tối ưu tốc độ.
-      const isHeavyDoc = (this.pdfFile() && this.pdfFile()!.size > 70 * 1024 * 1024);
-      const CONCURRENT_CHUNKS = isHeavyDoc ? 1 : 2;
+      // Xử lý song song 2 khối cùng lúc để đạt tốc độ tối đa
+      const CONCURRENT_CHUNKS = 2;
       for (let i = 0; i < pendingIndices.length; i += CONCURRENT_CHUNKS) {
         if (this.shouldStopBatch()) {
           this.showSuccess('Đã nhận lệnh dừng. Các khối còn lại tạm dừng.');

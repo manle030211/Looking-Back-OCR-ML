@@ -215,12 +215,10 @@ export class PdfProcessor {
       }
     }
 
-    // Adaptive chunk splitting based on BOTH file size and page count:
-    // A heavy scanned file (e.g. 103MB for 10-20 pages) has 5MB-10MB/page.
-    // Putting 12 pages in a chunk would create a 60MB-100MB chunk, causing browser Out of Memory.
-    // We aim for each chunk to be <= 12MB and at most 10 pages.
-    const MAX_CHUNK_PAGES = 10;
-    const TARGET_MAX_CHUNK_MB = 12;
+    // Optimize chunk splitting: target ~50MB per chunk (max 12 pages)
+    // For a 100-110MB file, this divides into 2 chunks (just like a 50MB file) for maximum speed.
+    const MAX_CHUNK_PAGES = 12;
+    const TARGET_MAX_CHUNK_MB = 55;
     const fileSizeMb = file.size / (1024 * 1024);
     const avgMbPerPage = fileSizeMb / Math.max(1, numPages);
 
@@ -232,23 +230,29 @@ export class PdfProcessor {
 
     const createChunks = (pages: PdfPageData[]): any[] => {
       const chunks: any[] = [];
-      for (let i = 0; i < pages.length; i += targetPagesPerChunk) {
-        const slice = pages.slice(i, i + targetPagesPerChunk);
-        if (slice.length > 0) {
-          chunks.push({
-            id: '',
-            originalFileName: '',
-            index: chunks.length,
-            startPageNum: slice[0].pageNum,
-            endPageNum: slice[slice.length - 1].pageNum,
-            pages: slice,
-            status: 'pending',
-            errorMessage: '',
-            markdownContent: '',
-            reflowHtml: ''
-          });
+      const divide = (p: PdfPageData[]) => {
+        if (p.length <= targetPagesPerChunk) {
+          if (p.length > 0) {
+            chunks.push({
+              id: '',
+              originalFileName: '',
+              index: chunks.length,
+              startPageNum: p[0].pageNum,
+              endPageNum: p[p.length - 1].pageNum,
+              pages: p,
+              status: 'pending',
+              errorMessage: '',
+              markdownContent: '',
+              reflowHtml: ''
+            });
+          }
+          return;
         }
-      }
+        const mid = Math.ceil(p.length / 2);
+        divide(p.slice(0, mid));
+        divide(p.slice(mid));
+      };
+      divide(pages);
       return chunks;
     };
 
